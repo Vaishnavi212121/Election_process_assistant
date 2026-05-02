@@ -124,7 +124,7 @@ function updateWidgets(phaseKey) {
 function parseMarkdown(text) {
   let html = text
     // Fix bold parsing properly
-    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     // Parse list items
     .replace(/^\\s*[-*]\\s+(.+)$/gm, '<li>$1</li>')
     // Convert newlines to breaks
