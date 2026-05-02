@@ -266,7 +266,6 @@ export function searchPollingPlace() {
 // we must attach them to the window. However, the audit specifically requested removing inline onclicks! 
 // We will update index.html to have IDs and classes and bind them here.)
 
-window.addEventListener('DOMContentLoaded', () => {
   // Bind Timeline buttons
   document.querySelectorAll('.phase-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -341,6 +340,5 @@ window.addEventListener('DOMContentLoaded', () => {
     mapSearchBtn.addEventListener('click', searchPollingPlace);
   }
 
-  // Init
-  updateWidgets('default');
-});
+// Init
+updateWidgets('default');
