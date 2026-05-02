@@ -76,7 +76,7 @@ async function callGeminiAPI(apiKey, userMsg) {
   }));
   
   const systemText = SYSTEM_PROMPTS[state.language];
-  const url = \`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=\${apiKey}\`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const data = await fetchWithRetry(url, {
     method: 'POST',
@@ -106,10 +106,10 @@ async function generateVoterPlan(apiKey) {
 
   const context = state.voterPlanData.join('\\n');
   const prompt = state.language === 'en' 
-    ? \`Based on this conversation history, generate a personalized, actionable 5-step checklist for the user to participate in the election. Make it clear and structured using Markdown bullet points. Context: \${context}\`
-    : \`Basado en el historial de conversación, genera una lista de verificación personalizada y procesable de 5 pasos para que el usuario participe en la elección. Usa viñetas Markdown. Contexto: \${context}\`;
+    ? `Based on this conversation history, generate a personalized, actionable 5-step checklist for the user to participate in the election. Make it clear and structured using Markdown bullet points. Context: ${context}`
+    : `Basado en el historial de conversación, genera una lista de verificación personalizada y procesable de 5 pasos para que el usuario participe en la elección. Usa viñetas Markdown. Contexto: ${context}`;
 
-  const url = \`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=\${apiKey}\`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   
   const data = await fetchWithRetry(url, {
     method: 'POST',
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = encodeURIComponent(eventTitle);
     const details = encodeURIComponent(eventDesc);
     const dateEnd = eventDate.replace('T000000Z', 'T010000Z').replace('T120000Z', 'T130000Z'); 
-    return \`https://calendar.google.com/calendar/render?action=TEMPLATE&text=\${title}&dates=\${eventDate}/\${dateEnd}&details=\${details}\`;
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${eventDate}/${dateEnd}&details=${details}`;
   }
 
   function updateWidgets(phaseKey) {
@@ -214,44 +214,44 @@ document.addEventListener('DOMContentLoaded', () => {
     if (calendarDiv) {
       calendarDiv.innerHTML = data.events.map(ev => {
         const calendarLink = generateGoogleCalendarLink(ev.title, ev.desc, ev.date);
-        return \`
-          <div class="event-item" role="article" aria-labelledby="ev-\${ev.day}">
+        return `
+          <div class="event-item" role="article" aria-labelledby="ev-${ev.day}">
             <div class="event-date">
-              <span class="event-month">\${ev.month}</span>
-              <span class="event-day" id="ev-\${ev.day}">\${ev.day}</span>
+              <span class="event-month">${ev.month}</span>
+              <span class="event-day" id="ev-${ev.day}">${ev.day}</span>
             </div>
             <div class="event-details">
-              <h4>\${ev.title}</h4>
-              <p>\${ev.desc}</p>
-              <a href="\${calendarLink}" target="_blank" rel="noopener noreferrer" class="calendar-add-link" aria-label="Add \${ev.title} to Google Calendar">
+              <h4>${ev.title}</h4>
+              <p>${ev.desc}</p>
+              <a href="${calendarLink}" target="_blank" rel="noopener noreferrer" class="calendar-add-link" aria-label="Add ${ev.title} to Google Calendar">
                  📅 Add to Calendar
               </a>
             </div>
           </div>
-        \`;
+        `;
       }).join('');
     }
 
     if (newsDiv) {
-      newsDiv.innerHTML = data.news.map(n => \`
+      newsDiv.innerHTML = data.news.map(n => `
         <div class="news-item" role="article">
-          <div class="news-source">⚡ \${n.source}</div>
-          <div class="news-title" tabindex="0">\${n.title}</div>
-          <span class="news-time">\${n.time}</span>
+          <div class="news-source">⚡ ${n.source}</div>
+          <div class="news-title" tabindex="0">${n.title}</div>
+          <span class="news-time">${n.time}</span>
         </div>
-      \`).join('');
+      `).join('');
     }
   }
 
   function parseMarkdown(text) {
     let html = text
-      .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
-      .replace(/^\\s*[-*]\\s+(.+)$/gm, '<li>$1</li>')
-      .replace(/\\n\\n/g, '<br><br>')
-      .replace(/\\n(?!\\<li\\>)/g, '<br>');
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n(?!<li>)/g, '<br>');
       
     if (html.includes('<li>')) {
-      html = html.replace(/(<li>.*<\\/li>)/s, '<ul>$1</ul>');
+      html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
     }
     return html;
   }
@@ -353,8 +353,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateWidgets(phase);
     
     const msg = state.language === 'en' 
-      ? \`Explain the "\${phase}" phase of the election process.\`
-      : \`Explica la fase "\${phase}" del proceso electoral.\`;
+      ? `Explain the "${phase}" phase of the election process.`
+      : `Explica la fase "${phase}" del proceso electoral.`;
       
     addMessage('user', (state.language === 'en' ? 'Tell me about: ' : 'Háblame de: ') + phase);
     handleAPICall(msg);
@@ -374,8 +374,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const zip = zipInput.value.trim();
     if(!zip) return;
 
-    const query = encodeURIComponent(\`polling places near \${zip}\`);
-    iframeContainer.innerHTML = \`<iframe width="100%" height="200" style="border:0; border-radius:10px; margin-top:10px;" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/search?q=\${query}&key=\${apiKeyInput.value.trim()}"></iframe>\`;
+    const query = encodeURIComponent(`polling places near ${zip}`);
+    iframeContainer.innerHTML = `<iframe width="100%" height="200" style="border:0; border-radius:10px; margin-top:10px;" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/search?q=${query}&key=${apiKeyInput.value.trim()}"></iframe>`;
   }
 
   // --- Attach Event Listeners ---
