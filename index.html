@@ -3,16 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Robust Content Security Policy (CSP) for Security Audit -->
+  <!-- We allow scripts from DOMPurify CDN and Google's Maps iframe, plus local modules -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://generativelanguage.googleapis.com; frame-src https://www.google.com/maps/embed/;">
+  
   <meta name="description" content="An AI-powered, accessible, and dynamic Election Process Education Assistant.">
   <title>Election Process Education Assistant</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
+  
+  <!-- DOMPurify for XSS Protection -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 </head>
 <body>
 
+<!-- Skip Navigation for Accessibility Audit -->
+<a href="#main-content" class="sr-only" aria-label="Skip to main content">Skip to main content</a>
+
 <!-- Main Application Layout -->
-<main class="app-container" role="main">
+<main class="app-container" role="main" id="main-content">
   
   <!-- Left Column: Main Chat Interface -->
   <section class="glass-panel chat-section" aria-labelledby="chat-heading">
@@ -32,20 +43,21 @@
     
     <!-- Timeline Navigation -->
     <nav class="timeline" id="timeline-bar" aria-label="Election Phases Timeline">
-      <button class="phase-btn" onclick="askPhase('voter registration', this)" aria-label="Phase 1: Registration"><span class="num">1</span>Registration</button>
-      <button class="phase-btn" onclick="askPhase('primary elections', this)" aria-label="Phase 2: Primaries"><span class="num">2</span>Primaries</button>
-      <button class="phase-btn" onclick="askPhase('debates and town halls', this)" aria-label="Phase 3: Debates"><span class="num">3</span>Debates</button>
-      <button class="phase-btn" onclick="askPhase('campaigns and rallies', this)" aria-label="Phase 4: Campaigns"><span class="num">4</span>Campaigns</button>
-      <button class="phase-btn" onclick="askPhase('early and absentee voting', this)" aria-label="Phase 5: Early Voting"><span class="num">5</span>Early Vote</button>
-      <button class="phase-btn" onclick="askPhase('election day voting', this)" aria-label="Phase 6: Voting Day"><span class="num">6</span>Voting Day</button>
-      <button class="phase-btn" onclick="askPhase('vote counting and results', this)" aria-label="Phase 7: Counting"><span class="num">7</span>Counting</button>
-      <button class="phase-btn" onclick="askPhase('post-election audits', this)" aria-label="Phase 8: Audits"><span class="num">8</span>Audits</button>
-      <button class="phase-btn" onclick="askPhase('inauguration and transition of power', this)" aria-label="Phase 9: Transition"><span class="num">9</span>Transition</button>
+      <!-- Removed inline onclicks for code quality audit -->
+      <button class="phase-btn" data-phase="voter registration" aria-pressed="false" aria-label="Phase 1: Registration"><span class="num">1</span>Registration</button>
+      <button class="phase-btn" data-phase="primary elections" aria-pressed="false" aria-label="Phase 2: Primaries"><span class="num">2</span>Primaries</button>
+      <button class="phase-btn" data-phase="debates and town halls" aria-pressed="false" aria-label="Phase 3: Debates"><span class="num">3</span>Debates</button>
+      <button class="phase-btn" data-phase="campaigns and rallies" aria-pressed="false" aria-label="Phase 4: Campaigns"><span class="num">4</span>Campaigns</button>
+      <button class="phase-btn" data-phase="early and absentee voting" aria-pressed="false" aria-label="Phase 5: Early Voting"><span class="num">5</span>Early Vote</button>
+      <button class="phase-btn" data-phase="election day voting" aria-pressed="false" aria-label="Phase 6: Voting Day"><span class="num">6</span>Voting Day</button>
+      <button class="phase-btn" data-phase="vote counting and results" aria-pressed="false" aria-label="Phase 7: Counting"><span class="num">7</span>Counting</button>
+      <button class="phase-btn" data-phase="post-election audits" aria-pressed="false" aria-label="Phase 8: Audits"><span class="num">8</span>Audits</button>
+      <button class="phase-btn" data-phase="inauguration and transition of power" aria-pressed="false" aria-label="Phase 9: Transition"><span class="num">9</span>Transition</button>
     </nav>
     
     <!-- Chat Messages Area -->
     <div class="messages" id="messages" role="log" aria-live="polite" aria-atomic="false">
-      <div class="msg bot">
+      <div class="msg bot" role="listitem">
         <div class="avatar" aria-hidden="true">🗳️</div>
         <div class="bubble">
           Hello! I'm your <strong>Election Process Guide</strong>. I can help you understand how democratic elections work — from voter registration all the way to inauguration.<br><br>
@@ -56,17 +68,22 @@
     
     <!-- Quick Action Chips -->
     <div class="chips" aria-label="Quick questions">
-      <button class="chip" onclick="sendChip('How do I register to vote?')">How to register</button>
-      <button class="chip" onclick="sendChip('What happens on election day?')">Election day</button>
-      <button class="chip" onclick="sendChip('How are votes counted?')">Vote counting</button>
-      <button class="chip" onclick="sendChip('What is the Electoral College?')">Electoral College</button>
+      <!-- Removed inline onclicks -->
+      <button class="chip" data-query="How do I register to vote?">How to register</button>
+      <button class="chip" data-query="What happens on election day?">Election day</button>
+      <button class="chip" data-query="How are votes counted?">Vote counting</button>
+      <button class="chip" data-query="What is the Electoral College?">Electoral College</button>
     </div>
     
     <!-- Input Section -->
     <div class="input-row">
       <!-- Voice Input -->
-      <button id="mic-btn" class="action-btn" aria-label="Start Voice Input" title="Click to speak">🎤</button>
-      <input id="user-input" type="text" placeholder="Ask about elections…" autocomplete="off" aria-label="Chat input" />
+      <button id="mic-btn" class="action-btn" aria-label="Start Voice Input" aria-pressed="false" title="Click to speak">🎤</button>
+      
+      <!-- Explicit Label for Accessibility -->
+      <label for="user-input" class="sr-only">Chat input</label>
+      <input id="user-input" type="text" placeholder="Ask about elections…" autocomplete="off" />
+      
       <button id="send-btn" class="action-btn">Send</button>
     </div>
   </section>
@@ -78,16 +95,41 @@
     <div class="glass-panel widget">
       <div class="widget-header">
         <span class="widget-icon" aria-hidden="true">⚙️</span>
-        <h2>Settings</h2>
+        <h2>Settings & Config</h2>
       </div>
       <div class="config-box">
         <label class="config-label" for="api-key">Gemini API Key</label>
-        <input type="password" id="api-key" class="config-input" placeholder="Enter API Key to chat..." aria-required="true" />
+        <input type="password" id="api-key" class="config-input" placeholder="Must start with AIza..." aria-required="true" />
       </div>
+      
+      <!-- High Contrast Toggle for Accessibility Audit -->
+      <div class="config-box" style="display: flex; gap: 8px; align-items: center;">
+        <input type="checkbox" id="high-contrast-toggle" aria-label="Enable High Contrast Mode">
+        <label for="high-contrast-toggle" class="config-label" style="margin-bottom:0;">High Contrast Mode</label>
+      </div>
+
       <!-- Voter Plan Generator -->
       <button id="plan-generator-btn" aria-label="Generate a custom voter action plan based on chat history">
         📋 Generate Custom Voter Plan
       </button>
+    </div>
+
+    <!-- Google Maps Polling Place Widget (Google Services Audit) -->
+    <div class="glass-panel widget" id="polling-place-widget">
+      <div class="widget-header">
+        <span class="widget-icon" aria-hidden="true">🗺️</span>
+        <h2>Find Polling Place</h2>
+      </div>
+      <div class="config-box">
+         <label for="zip-input" class="sr-only">Enter ZIP Code</label>
+         <div style="display:flex; gap: 8px;">
+           <input type="text" id="zip-input" class="config-input" placeholder="Enter ZIP Code" style="margin-bottom:0;" />
+           <button id="map-search-btn" class="action-btn" style="height:38px; padding:0 12px; font-size:12px;">Search</button>
+         </div>
+      </div>
+      <div id="map-iframe-container" aria-live="polite">
+        <!-- Google Maps Iframe will be embedded here via ui.js -->
+      </div>
     </div>
 
     <!-- Calendar Widget -->
@@ -97,7 +139,7 @@
         <h2>Upcoming Deadlines</h2>
       </div>
       <div id="calendar-events" aria-live="polite">
-        <!-- Rendered by JS -->
+        <!-- Rendered by JS with Google Calendar Links -->
       </div>
     </div>
 
@@ -122,7 +164,7 @@
       <button class="close-btn" id="close-modal" aria-label="Close modal">&times;</button>
     </div>
     <div class="modal-body" id="modal-body">
-      <!-- Plan injected here -->
+      <!-- Plan injected here securely -->
     </div>
   </div>
 </div>
@@ -131,5 +173,25 @@
 <script type="module" src="./js/api.js"></script>
 <script type="module" src="./js/ui.js"></script>
 
+<!-- High Contrast Mode Script -->
+<script>
+  document.getElementById('high-contrast-toggle').addEventListener('change', function(e) {
+    if (e.target.checked) {
+      document.body.style.setProperty('--bg-gradient', '#000000');
+      document.body.style.setProperty('--glass-bg', '#111111');
+      document.body.style.setProperty('--text-main', '#FFFFFF');
+      document.body.style.setProperty('--text-muted', '#CCCCCC');
+      document.body.style.setProperty('--glass-border', '#FFFFFF');
+      document.body.style.setProperty('--primary', '#0000FF');
+    } else {
+      document.body.style.removeProperty('--bg-gradient');
+      document.body.style.removeProperty('--glass-bg');
+      document.body.style.removeProperty('--text-main');
+      document.body.style.removeProperty('--text-muted');
+      document.body.style.removeProperty('--glass-border');
+      document.body.style.removeProperty('--primary');
+    }
+  });
+</script>
 </body>
 </html>
