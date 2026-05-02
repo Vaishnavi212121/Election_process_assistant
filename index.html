@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Election Process Education Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Variables & Reset */
+    :root {
+      --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-red: #ef4444;
+      --accent-blue: #60a5fa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      width: 100%;
+      max-width: 1400px;
+      height: 94vh;
+      padding: 0 24px;
+    }
+
+    /* Glassmorphism Panel */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Main Chat Section */
+    .chat-section {
+      position: relative;
+    }
+
+    .header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    .header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
+    .header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Timeline Bar */
+    .timeline {
+      display: flex;
+      overflow-x: auto;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--glass-border);
+      scrollbar-width: none;
+    }
+    .timeline::-webkit-scrollbar { display: none; }
+    
+    .phase-btn {
+      flex: 1;
+      min-width: 90px;
+      padding: 12px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--glass-border);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-align: center;
+    }
+    .phase-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+    .phase-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+    .phase-btn .num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .phase-btn.active .num {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+
+    /* Messages */
+    .messages {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    .msg { display: flex; gap: 16px; align-items: flex-end; max-width: 85%; animation: slideUp 0.3s ease forwards; opacity: 0; transform: translateY(10px); }
+    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+    .msg.user { flex-direction: row-reverse; align-self: flex-end; }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .msg.bot .avatar { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: var(--primary); }
+    .msg.user .avatar { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; font-size: 13px; }
+
+    .bubble {
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.6;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .msg.bot .bubble { background: rgba(30, 41, 59, 0.8); border: 1px solid var(--glass-border); border-bottom-left-radius: 4px; }
+    .msg.user .bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+    
+    .bubble strong { color: white; font-weight: 600; }
+    .msg.bot .bubble strong { color: var(--primary); }
+    .bubble ul { margin: 8px 0 8px 20px; }
+    .bubble li { margin-bottom: 6px; }
+
+    /* Typing Indicator */
+    .typing { display: flex; gap: 6px; align-items: center; padding: 4px 0; }
+    .typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0.4); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+    /* Input Area */
+    .chips {
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px solid var(--glass-border);
+      background: rgba(0, 0, 0, 0.1);
+    }
+    .chip {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .chip:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      padding: 20px 24px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    #user-input {
+      flex: 1;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: white;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    #user-input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.08); }
+    #user-input::placeholder { color: var(--text-muted); }
+    
+    #send-btn {
+      padding: 0 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    #send-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    #send-btn:disabled { background: #475569; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Side Widgets */
+    .widgets {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+    .widgets::-webkit-scrollbar { display: none; }
+    
+    .widget {
+      padding: 20px;
+      flex-shrink: 0;
+    }
+    .widget-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .widget-icon {
+      color: var(--primary);
+    }
+    
+    /* Config Widget */
+    .config-box { margin-bottom: 12px; }
+    .config-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block; }
+    .config-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: white;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    .config-input:focus { border-color: var(--primary); }
+    .config-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px top 50%;
+      background-size: 10px auto;
+    }
+    .warning-text { font-size: 11px; color: var(--accent-red); margin-top: 4px; display: none; }
+
+    /* Calendar Widget */
+    .event-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--primary);
+      transition: transform 0.2s ease, background 0.2s;
+      cursor: default;
+    }
+    .event-item:hover { transform: translateX(4px); background: rgba(255,255,255,0.06); }
+    .event-date {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      min-width: 44px;
+      padding: 6px;
+    }
+    .event-month { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; }
+    .event-day { font-size: 16px; font-weight: 600; }
+    .event-details h4 { font-size: 13px; margin-bottom: 2px; font-weight: 500; }
+    .event-details p { font-size: 11px; color: var(--text-muted); }
+
+    /* News Widget */
+    .news-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .news-item:last-child { border-bottom: none; }
+    .news-source { font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .news-title { font-size: 13px; font-weight: 500; line-height: 1.4; cursor: pointer; transition: color 0.2s; }
+    .news-title:hover { color: var(--primary); text-decoration: underline; }
+    .news-time { font-size: 11px; color: var(--text-muted); margin-top: 6px; display: block; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .app-container { grid-template-columns: 1fr; height: 100vh; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+      .chat-section { height: 75vh; flex-shrink: 0; }
+      .widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; overflow-y: visible; }
+    }
+    @media (max-width: 650px) {
+      .widgets { grid-template-columns: 1fr; }
+      .timeline { padding-bottom: 8px; }
+      .phase-btn { min-width: 80px; padding: 10px 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Main Chat Section -->
+  <div class="glass-panel chat-section">
+    <div class="header">
+      <div class="header-icon">🗳️</div>
+      <div>
+        <h1>Election Process Guide</h1>
+        <p>AI-powered civic education assistant</p>
+      </div>
+    </div>
+    
+    <div class="timeline" id="timeline-bar">
+      <button class="phase-btn" onclick="askPhase('voter registration', this)"><span class="num">1</span>Registration</button>
+      <button class="phase-btn" onclick="askPhase('primary elections', this)"><span class="num">2</span>Primaries</button>
+      <button class="phase-btn" onclick="askPhase('debates and town halls', this)"><span class="num">3</span>Debates</button>
+      <button class="phase-btn" onclick="askPhase('campaigns and rallies', this)"><span class="num">4</span>Campaigns</button>
+      <button class="phase-btn" onclick="askPhase('early and absentee voting', this)"><span class="num">5</span>Early Vote</button>
+      <button class="phase-btn" onclick="askPhase('election day voting', this)"><span class="num">6</span>Voting Day</button>
+      <button class="phase-btn" onclick="askPhase('vote counting and results', this)"><span class="num">7</span>Counting</button>
+      <button class="phase-btn" onclick="askPhase('post-election audits', this)"><span class="num">8</span>Audits</button>
+      <button class="phase-btn" onclick="askPhase('inauguration and transition of power', this)"><span class="num">9</span>Transition</button>
+    </div>
+    
+    <div class="messages" id="messages">
+      <div class="msg bot">
+        <div class="avatar">🗳️</div>
+        <div class="bubble">
+          Hello! I'm your <strong>Election Process Guide</strong>. I can help you understand how democratic elections work — from voter registration all the way to inauguration.<br><br>
+          You can tap a phase above to explore that stage, pick a quick topic below, or ask me anything in your own words!
+        </div>
+      </div>
+    </div>
+    
+    <div class="chips">
+      <button class="chip" onclick="sendChip('How do I register to vote?')">How to register</button>
+      <button class="chip" onclick="sendChip('What happens on election day?')">Election day</button>
+      <button class="chip" onclick="sendChip('How are votes counted?')">Vote counting</button>
+      <button class="chip" onclick="sendChip('What is the Electoral College?')">Electoral College</button>
+      <button class="chip" onclick="sendChip('What is gerrymandering?')">Gerrymandering</button>
+      <button class="chip" onclick="sendChip('How do mail-in ballots work?')">Mail-in ballots</button>
+    </div>
+    
+    <div class="input-row">
+      <input id="user-input" type="text" placeholder="Ask about elections…" autocomplete="off" />
+      <button id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- Side Widgets Section -->
+  <div class="widgets">
+    
+    <!-- API Config Widget -->
+    <div class="glass-panel widget">
+      <div class="widget-header">
+        <span class="widget-icon">⚙️</span>
+        <span>Settings</span>
+      </div>
+      <div class="config-box">
+        <label class="config-label">AI Provider</label>
+        <select id="api-provider" class="config-input config-select" onchange="checkProviderWarning()">
+          <option value="gemini">Google Gemini (Recommended)</option>
+          <option value="anthropic">Anthropic Claude</option>
+        </select>
+        <div id="cors-warning" class="warning-text">Note: Direct browser calls to Anthropic may fail due to CORS.</div>
+      </div>
+      <div class="config-box">
+        <label class="config-label">API Key</label>
+        <input type="password" id="api-key" class="config-input" placeholder="Enter API Key to chat..." />
+      </div>
+    </div>
+
+    <!-- Calendar Widget -->
+    <div class="glass-panel widget">
+      <div class="widget-header">
+        <span class="widget-icon">📅</span>
+        <span>Upcoming Deadlines</span>
+      </div>
+      <div id="calendar-events">
+        <!-- Rendered by JS based on phase -->
+      </div>
+    </div>
+
+    <!-- News Widget -->
+    <div class="glass-panel widget">
+      <div class="widget-header">
+        <span class="widget-icon">📰</span>
+        <span>Live Civic Updates</span>
+      </div>
+      <div id="news-feed">
+        <!-- Rendered by JS based on phase -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// UI Elements
+const messagesDiv = document.getElementById('messages');
+const input = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const apiKeyInput = document.getElementById('api-key');
+const providerSelect = document.getElementById('api-provider');
+const corsWarning = document.getElementById('cors-warning');
+const calendarDiv = document.getElementById('calendar-events');
+const newsDiv = document.getElementById('news-feed');
+
+// State
+let history = [];
+let isLoading = false;
+
+// Dynamic Content Data
+const phaseData = {
+  default: {
+    events: [
+      { month: 'OCT', day: '05', title: 'Voter Registration Deadline', desc: 'Last day to register online or by mail.' },
+      { month: 'NOV', day: '05', title: 'General Election Day', desc: 'Polls open 7AM - 8PM locally.' }
+    ],
+    news: [
+      { source: 'Civic Center', title: 'Voter turnout expected to reach record highs this year.', time: '2 hours ago' },
+      { source: 'Election Hub', title: 'New polling locations announced for several districts.', time: '5 hours ago' }
+    ]
+  },
+  'voter registration': {
+    events: [
+      { month: 'OCT', day: '05', title: 'Registration Deadline', desc: 'Must be postmarked by today.' },
+      { month: 'OCT', day: '10', title: 'Status Check Deadline', desc: 'Verify your registration status online.' }
+    ],
+    news: [
+      { source: 'Local Gov', title: 'Online voter registration portal sees massive surge.', time: '1 hour ago' },
+      { source: 'Civic Center', title: 'How to update your address before the deadline.', time: '4 hours ago' }
+    ]
+  },
+  'debates and town halls': {
+    events: [
+      { month: 'SEP', day: '15', title: 'First Presidential Debate', desc: 'Broadcast live at 9 PM EST.' },
+      { month: 'OCT', day: '01', title: 'Vice Presidential Debate', desc: 'Broadcast live at 9 PM EST.' }
+    ],
+    news: [
+      { source: 'News Network', title: 'Candidates prepare for the first major debate.', time: '30 mins ago' },
+      { source: 'Polity Watch', title: 'Key issues expected to dominate the town hall tonight.', time: '3 hours ago' }
+    ]
+  },
+  'early and absentee voting': {
+    events: [
+      { month: 'OCT', day: '15', title: 'Early Voting Begins', desc: 'Select locations open for early voting.' },
+      { month: 'OCT', day: '29', title: 'Absentee Request Deadline', desc: 'Last day to request a mail ballot.' }
+    ],
+    news: [
+      { source: 'Election Hub', title: 'Over 1 million early votes cast in the first week.', time: '10 mins ago' },
+      { source: 'Civic Center', title: 'Guide to tracking your mail-in ballot online.', time: '2 hours ago' }
+    ]
+  }
+};
+
+const SYSTEM = `You are a helpful, neutral, and educational assistant focused on explaining election processes. You cover:
+- Voter registration requirements and deadlines
+- Primary elections and how candidates are chosen
+- Campaign finance, rallies, and debates
+- Early voting and absentee/mail-in voting
+- Election day procedures and polling
+- How votes are counted and post-election audits
+- The Electoral College (for US elections)
+- Inauguration and transition of power
+- Common election terms (gerrymandering, redistricting, runoff elections, etc.)
+
+Keep answers clear, factual, and non-partisan. Use simple language. Structure longer answers with bullet points when helpful. If asked about a specific country, tailor your answer to that country's system. If not specified, default to explaining general democratic processes, using the US as a primary example where relevant. Keep responses concise (3–5 sentences or 4–6 bullet points unless more detail is needed).`;
+
+// Initialization
+function initWidgets() {
+  updateWidgets('default');
+}
+
+function checkProviderWarning() {
+  if (providerSelect.value === 'anthropic') {
+    corsWarning.style.display = 'block';
+  } else {
+    corsWarning.style.display = 'none';
+  }
+}
+
+function updateWidgets(phaseKey) {
+  const data = phaseData[phaseKey] || phaseData.default;
+  
+  // Render Calendar
+  calendarDiv.innerHTML = data.events.map(ev => `
+    <div class="event-item">
+      <div class="event-date">
+        <span class="event-month">${ev.month}</span>
+        <span class="event-day">${ev.day}</span>
+      </div>
+      <div class="event-details">
+        <h4>${ev.title}</h4>
+        <p>${ev.desc}</p>
+      </div>
+    </div>
+  `).join('');
+
+  // Render News
+  newsDiv.innerHTML = data.news.map(n => `
+    <div class="news-item">
+      <div class="news-source">⚡ ${n.source}</div>
+      <div class="news-title">${n.title}</div>
+      <span class="news-time">${n.time}</span>
+    </div>
+  `).join('');
+}
+
+// Chat Functions
+function addMessage(role, text) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar';
+  avatar.textContent = role === 'user' ? 'U' : '🗳️';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  
+  // Basic markdown parsing
+  let htmlText = text
+    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n(?!\<li\>)/g, '<br>');
+    
+  // Wrap list items in ul
+  if (htmlText.includes('<li>')) {
+    htmlText = htmlText.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+  }
+  
+  bubble.innerHTML = htmlText;
+  
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  return bubble;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-indicator';
+  div.innerHTML = '<div class="avatar">🗳️</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+async function callAPI(userMsg) {
+  const apiKey = apiKeyInput.value.trim();
+  const provider = providerSelect.value;
+  
+  if (!apiKey) {
+    addMessage('bot', '⚠️ Please enter your API key in the Settings widget to continue.');
+    return;
+  }
+
+  history.push({ role: 'user', content: userMsg });
+  showTyping();
+  isLoading = true;
+  sendBtn.disabled = true;
+
+  try {
+    let reply = '';
+    
+    if (provider === 'gemini') {
+      // Gemini API Call
+      const geminiHistory = history.map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }]
+      }));
+      
+      const res = await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=\${apiKey}\`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM }] },
+          contents: geminiHistory,
+          generationConfig: { maxOutputTokens: 1000 }
+        })
+      });
+      
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      reply = data.candidates[0].content.parts[0].text;
+
+    } else {
+      // Anthropic API Call
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerously-allow-browser': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20240620',
+          max_tokens: 1000,
+          system: SYSTEM,
+          messages: history
+        })
+      });
+      
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      reply = data.content[0].text;
+    }
+
+    hideTyping();
+    history.push({ role: 'assistant', content: reply });
+    addMessage('bot', reply);
+    
+  } catch (e) {
+    hideTyping();
+    history.pop(); // Remove user message from history on failure
+    addMessage('bot', '❌ Error: ' + e.message + '<br><br>Make sure your API key is correct and valid for the selected provider.');
+  } finally {
+    isLoading = false;
+    sendBtn.disabled = false;
+  }
+}
+
+function sendMessage() {
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+  addMessage('user', text);
+  input.value = '';
+  callAPI(text);
+}
+
+function sendChip(text) {
+  if (isLoading) return;
+  addMessage('user', text);
+  callAPI(text);
+}
+
+function askPhase(phase, btnElem) {
+  if (isLoading) return;
+  
+  // Update UI styles
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  btnElem.classList.add('active');
+  
+  // Update Widgets based on phase
+  updateWidgets(phase);
+
+  // Send message
+  const msg = \`Explain the "\${phase}" phase of the election process.\`;
+  addMessage('user', 'Tell me about: ' + phase);
+  callAPI(msg);
+}
+
+// Event Listeners
+input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
+// Run on load
+initWidgets();
+checkProviderWarning();
+
+</script>
+</body>
+</html>
