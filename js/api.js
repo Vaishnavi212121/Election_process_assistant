@@ -4,7 +4,7 @@ export const state = {
   chatHistory: [],
   isLoading: false,
   language: 'en', // 'en' or 'es'
-  currentPhase: 'default',
+  currentPhase: null,
   voterPlanData: []
 };
 
