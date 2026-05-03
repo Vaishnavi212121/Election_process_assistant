@@ -76,7 +76,7 @@ async function callGeminiAPI(apiKey, userMsg) {
   }));
   
   const systemText = SYSTEM_PROMPTS[state.language];
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   const data = await fetchWithRetry(url, {
     method: 'POST',
@@ -109,7 +109,7 @@ async function generateVoterPlan(apiKey) {
     ? `Based on this conversation history, generate a personalized, actionable 5-step checklist for the user to participate in the election. Make it clear and structured using Markdown bullet points. Context: ${context}`
     : `Basado en el historial de conversación, genera una lista de verificación personalizada y procesable de 5 pasos para que el usuario participe en la elección. Usa viñetas Markdown. Contexto: ${context}`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   
   const data = await fetchWithRetry(url, {
     method: 'POST',
@@ -141,6 +141,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeBtn = document.getElementById('close-modal');
   const langBtns = document.querySelectorAll('.lang-btn');
   const pollingPlaceDiv = document.getElementById('polling-place-widget');
+
+  // Load saved API key
+  if (apiKeyInput && localStorage.getItem('gemini_api_key')) {
+    apiKeyInput.value = localStorage.getItem('gemini_api_key');
+  }
+
+  // Save API key on change
+  if (apiKeyInput) {
+    apiKeyInput.addEventListener('change', (e) => {
+      localStorage.setItem('gemini_api_key', e.target.value.trim());
+    });
+  }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognition = null;
