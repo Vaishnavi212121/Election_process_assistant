@@ -266,6 +266,9 @@ export function searchPollingPlace() {
 // we must attach them to the window. However, the audit specifically requested removing inline onclicks! 
 // We will update index.html to have IDs and classes and bind them here.)
 
+try {
+  console.log('UI.JS Module Loaded Successfully');
+
   // Bind Timeline buttons
   document.querySelectorAll('.phase-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -306,7 +309,7 @@ export function searchPollingPlace() {
         const rawHtml = parseMarkdown(plan);
         modalBody.innerHTML = window.DOMPurify.sanitize(rawHtml, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'] });
         modalOverlay.classList.add('active');
-        closeBtn.focus(); // A11y: focus modal close
+        if(closeBtn) closeBtn.focus(); // A11y: focus modal close
       } catch(e) {
         modalBody.textContent = 'Error: ' + e.message;
         modalOverlay.classList.add('active');
@@ -320,7 +323,7 @@ export function searchPollingPlace() {
   if(closeBtn) {
     closeBtn.addEventListener('click', () => {
       modalOverlay.classList.remove('active');
-      planGeneratorBtn.focus(); // A11y: restore focus
+      if(planGeneratorBtn) planGeneratorBtn.focus(); // A11y: restore focus
     });
   }
 
@@ -340,5 +343,12 @@ export function searchPollingPlace() {
     mapSearchBtn.addEventListener('click', searchPollingPlace);
   }
 
-// Init
-updateWidgets('default');
+  console.log('Event listeners bound successfully, initializing widgets...');
+  // Init
+  updateWidgets('default');
+  console.log('Widgets initialized.');
+
+} catch (err) {
+  console.error("CRITICAL UI.JS ERROR:", err);
+  alert("Initialization Error: " + err.message);
+}

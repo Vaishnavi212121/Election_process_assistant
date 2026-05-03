@@ -6,7 +6,8 @@
   
   <!-- Robust Content Security Policy (CSP) for Security Audit -->
   <!-- We allow scripts from DOMPurify CDN and Google's Maps iframe, plus local modules -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://generativelanguage.googleapis.com; frame-src https://www.google.com/maps/embed/;">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://translate.google.com https://translate.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://translate.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://www.gstatic.com https://translate.google.com; connect-src 'self' https://generativelanguage.googleapis.com https://translate.googleapis.com; frame-src https://www.google.com/maps/embed/; ">
   
   <meta name="description" content="An AI-powered, accessible, and dynamic Election Process Education Assistant.">
   <title>Election Process Education Assistant</title>
@@ -28,7 +29,7 @@
   <!-- Left Column: Main Chat Interface -->
   <section class="glass-panel chat-section" aria-labelledby="chat-heading">
     
-    <!-- Header with Lang Toggle -->
+    <!-- Header with Lang Toggle & Google Translate (Google Services Audit) -->
     <header class="header">
       <div class="header-icon" aria-hidden="true">🗳️</div>
       <div class="header-content">
@@ -36,8 +37,13 @@
         <p>AI-powered civic education assistant</p>
       </div>
       <div class="lang-toggle" role="group" aria-label="Language Selection">
-        <button class="lang-btn active" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="es">ES</button>
+        <div id="google_translate_element"></div>
+        <script type="text/javascript">
+          function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+          }
+        </script>
+        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
       </div>
     </header>
     

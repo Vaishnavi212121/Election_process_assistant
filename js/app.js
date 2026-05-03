@@ -35,11 +35,24 @@ Keep answers clear, factual, and non-partisan. Structure longer answers with bul
 Mantén las respuestas claras, fácticas y no partidistas. Usa viñetas. Mantén las respuestas concisas (3-5 oraciones).`
 };
 
+/**
+ * Validates the format of the provided Google Gemini API Key.
+ * @param {string} apiKey - The API key to validate.
+ * @returns {boolean} True if the key is valid, false otherwise.
+ */
 function validateApiKey(apiKey) {
   if (!apiKey || typeof apiKey !== 'string') return false;
   return apiKey.trim().startsWith('AIza');
 }
 
+/**
+ * Fetches data from a URL with built-in exponential backoff retry logic.
+ * @param {string} url - The endpoint to fetch from.
+ * @param {Object} options - Fetch options (headers, body, etc).
+ * @param {number} [maxRetries=2] - Maximum number of retry attempts.
+ * @returns {Promise<Object>} The parsed JSON response.
+ * @throws {Error} If the API returns an error or all retries fail.
+ */
 async function fetchWithRetry(url, options, maxRetries = 2) {
   let attempt = 0;
   while (attempt <= maxRetries) {
