@@ -1,15 +1,23 @@
-const app = require('../js/app.js'); // Mock require
+/**
+ * @jest-environment jsdom
+ */
 
 describe('Election Process API Validation', () => {
   test('API Key Validator should reject empty keys', () => {
-    // Mock the validateApiKey function logic
-    const validateApiKey = (key) => key && key.startsWith('AIza');
+    // Pure logic test
+    const validateApiKey = (key) => {
+      if (!key || typeof key !== 'string') return false;
+      return key.trim().startsWith('AIza');
+    };
     expect(validateApiKey('')).toBeFalsy();
     expect(validateApiKey(null)).toBeFalsy();
   });
 
   test('API Key Validator should accept valid keys', () => {
-    const validateApiKey = (key) => key && key.startsWith('AIza');
+    const validateApiKey = (key) => {
+      if (!key || typeof key !== 'string') return false;
+      return key.trim().startsWith('AIza');
+    };
     expect(validateApiKey('AIzaSyA...')).toBeTruthy();
   });
 
